@@ -1,0 +1,51 @@
+Create a menu with the following options:
+
+New Pokemon (up to 50 entries)
+List down the default 13 Pokemon types and one N/A type
+Input a Pokemon's name (Pokedex number is autoincrement)
+Duplicate Pokemon names are not allowed
+
+Input type 1 (integer from the range of default types)
+Input type 2 (integer from the range of default types)
+Input HP (must be integer values between 1 and 100)
+Input Attack (must be integer values between 1 and 100)
+Input Defense (must be integer values between 1 and 100)
+
+View Pokedex
+Display all the Pokemons in the Pokedex
+Allow the user to view the stats of the Pokemon based on the Pokedex number as an input (Must be between 1 up to the last entry)
+The stat sheet must look like a bar chart or graph that corresponds to the actual value of the stat.
+
+
+~
+
+For testing purposes, you need to include four Pokemon entries with complete data. This includes the Pokemon name, Type 1, Type 2, HP, Attack, and Defense.
+
+~
+
+N/A
+Normal
+Fighting
+Flying
+Poison
+Ground
+Rock
+Bug
+Ghost
+Steel
+Fire
+Water
+Grass
+Electric
+Psychic
+Ice
+Dragon
+Dark
+Fairy
+
+,name,type1,type2,hp,atk,def
+0,fludd,2,3,10,100,10
+1,humhum,4,0,15,30,45
+2,tester,13,18,50,50,50
+3,fourth,1,6,20,40,60
+
