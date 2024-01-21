@@ -8,7 +8,7 @@
 #define FILEPATH "C:/Users/sarco/OneDrive - DEPED REGION 7-2/Desktop/pokepractice/init_poke.csv"
 #define MAXSIZE 5
 
-typedef struct {
+typedef struct pokemon{
     char name[100];
     int type1;
     int type2;
@@ -22,7 +22,7 @@ pokemon list[MAXSIZE];
 int pokeSize = 0;
 
 void pokeViewer();
-void statViewer(int index);
+void statViewer(pokemon* list, int index);
 
 char* typeConverter(int num){
 
@@ -151,7 +151,7 @@ char* bars(int prop){
 
     char* output = calloc(10, sizeof(char));
     memset(output, '_', 10);
-    memset(output, 'o', prop < 10 ? 1 : prop/10);
+    memset(output, 'o', (prop < 10 && prop > 0) ? 1 : prop/10);
 
     return output;
 }
@@ -213,6 +213,7 @@ void main(){
 
     char userInput;
     int pokeIndex;
+    pokemon toAdd[1];
 
     do { // while (userInput != 'q')
 
@@ -228,7 +229,7 @@ void main(){
             strcat(selText, "vr");
         }
 
-        if (pokeSize < 50){
+        if (pokeSize < MAXSIZE){
             strcat(menuText, "[A]dd new pokemon\n");
             strcat(selText, "a");
         }
@@ -248,7 +249,7 @@ void main(){
         
                     system("cls");
                     pokeViewer();
-                    statViewer(--pokeIndex);
+                    statViewer(list, --pokeIndex);
                     
                     pokeIndex = numInputCheck("Select another pokedex entry to view\n[X] to return to menu\n\n", pokeSize, 1);
 
@@ -260,8 +261,11 @@ void main(){
 
                 pokeIndex = numInputCheck("Select pokedex entry to remove\n[X] to return to menu\n\n", pokeSize, 0);
 
+                if (pokeIndex == -1)
+                    break;
+
                 printf("To be removed:\n");
-                statViewer(--pokeIndex);
+                statViewer(list, --pokeIndex);
 
                 userInput = menuInputCheck("Are you sure?\nThis action is irreversable\n[Y]es\n[N]o\n", "ynxq", 1);
 
@@ -285,6 +289,37 @@ void main(){
                 pokeViewer();
                 printf("Successfully removed!\nPress any key to continue\n");
                 getche();
+
+                break;
+
+            case 'a':
+                
+                memset(toAdd[0].name, '\0', 100);
+                toAdd[0].type1 = 0;
+                toAdd[0].type2 = 0;
+                toAdd[0].hp = 0;
+                toAdd[0].atk = 0;
+                toAdd[0].def = 0;
+
+                do {
+                    system("clr");
+                    pokeViewer();
+
+                    printf("Name of the pokemon to be added\n");
+                    memset(toAdd[0].name, '\0', 100);
+                    rewind(stdin);
+                    scanf("%[^\n,]s", &toAdd[0].name);
+
+                    system("clr");
+                    pokeViewer();
+                    statViewer(toAdd, 0);
+
+                    userInput = menuInputCheck("Is the name correct?\n[Y]es\n[N]o\n", "ynxq", 1);
+
+                } while (userInput != 'y');
+
+                toAdd[0].type1 = infoAdder(1, 1);
+
 
             default:
                 break;
@@ -311,7 +346,7 @@ void pokeViewer(){
 
 }
 
-void statViewer(int index){
+void statViewer(pokemon* list, int index){
 
     printf("Name: %s\n", list[index].name);
     printf("Type: %s %s\n", typeConverter(list[index].type1), list[index].type2 ? typeConverter(list[index].type2) : "");
