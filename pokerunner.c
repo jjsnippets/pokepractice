@@ -21,6 +21,7 @@ pokemon list[50];
 int pokeSize = 0;
 
 void pokeViewer();
+
 char* typeConverter(int num){
 
     char* types[19] = {
@@ -107,6 +108,33 @@ char menuInputCheck(char* text, char* valid){
 
 }
 
+int numInputCheck(char* text, int max){
+
+    int input = -1;
+    char* cintput;
+
+    while (true) {
+
+        system("cls");
+        pokeViewer();
+        printf("%s", text);
+
+        if (input == -1){}
+        else if (strcmp(cintput, "x") == 0 || strcmp(cintput, "X") == 0){
+            return -1;
+        } else if (input == 0){
+            printf("Enter a number!\n\n");
+        } else if (input > max || input < 1){
+            printf("Enter a valid number!\n\n");
+        } else 
+            return input;
+
+        scanf("%s", cintput);
+        input = atoi(cintput);
+
+    }
+}
+
 void main(){
     // loading the file
     // https://en.cppreference.com/w/c/program/EXIT_status
@@ -163,28 +191,37 @@ void main(){
     // main menu
 
     char userInput;
+    int pokeIndex;
 
     do { // while (userInput != 'q')
 
-    userInput = menuInputCheck("Select one of the following:\n[V]iew individual stats\n[A]dd new pokemon\n[R]emove pokemon\n[Q]uit and save\n", "varq");
+        userInput = menuInputCheck("Select one of the following:\n[V]iew individual stats\n[A]dd new pokemon\n[R]emove pokemon\n[Q]uit and save\n", "varq");
 
-    switch (userInput)
-    {
-    case 'v':
+        switch (userInput) {
+            case 'v':
 
-        pokeIndex = numInputCheck("Select pokedex entry to view\n[X] to return to menu", pokeSize);
-        if (pokeIndex == -1)
-            break;
+                pokeIndex = numInputCheck("Select pokedex entry to view\n[X] to return to menu\n", pokeSize);
+                if (pokeIndex == -1)
+                    break;
+                
+                pokeViewer();
+
+                printf("Name: %s\nSTATS: \n", list[--pokeIndex].name);
+                printf("%s%s\n", typeConverter(list[pokeIndex].type1), list[pokeIndex].type2 ? typeConverter(list[pokeIndex].type2) : "");
+                printf("HP  : [%d]\n", list[pokeIndex].hp);
+                printf("ATK : [%d]\n", list[pokeIndex].atk);
+                printf("DEF : [%d]\n", list[pokeIndex].def);
+
+                getche();
 
 
-        break;
-    
-    default:
-        break;
-    }
 
 
-
+                
+            
+            default:
+                break;
+        }
 
     } while (userInput != 'q');
     
