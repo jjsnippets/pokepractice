@@ -22,6 +22,7 @@ pokemon list[MAXSIZE];
 int pokeSize = 0;
 
 void pokeViewer();
+void statViewer(int index);
 
 char* typeConverter(int num){
 
@@ -83,15 +84,18 @@ int set100(int value, char* pos, int strict){
     }
 }
 
-char menuInputCheck(char* text, char* valid){
+char menuInputCheck(char* text, char* valid, int hideList){
 
     char input = 0;
     char* ibuffer = calloc(2, sizeof(char));
 
     while (true) {
 
-        system("cls");
-        pokeViewer();
+        if (!hideList){
+            system("cls");
+            pokeViewer();
+        } else
+            hideList--;
 
         if (strpbrk(ibuffer, valid) && input)
             return input;
@@ -233,28 +237,54 @@ void main(){
         strcat(selText, "q");
 
 
-        userInput = menuInputCheck(menuText, selText);
+        userInput = menuInputCheck(menuText, selText, 0);
 
         switch (userInput) {
             case 'v':
 
-            pokeIndex = numInputCheck("Select pokedex entry to view\n[X] to return to menu\n\n", pokeSize, 0);
+                pokeIndex = numInputCheck("Select pokedex entry to view\n[X] to return to menu\n\n", pokeSize, 0);
 
-            while(pokeIndex != -1) {                   
-    
-                system("cls");
-                pokeViewer();
-                printf("Name: %s\n", list[--pokeIndex].name);
-                printf("Type: %s %s\n", typeConverter(list[pokeIndex].type1), list[pokeIndex].type2 ? typeConverter(list[pokeIndex].type2) : "");
-                printf("HP  : [%s]\n", bars(list[pokeIndex].hp));
-                printf("ATK : [%s]\n", bars(list[pokeIndex].atk));
-                printf("DEF : [%s]\n\n", bars(list[pokeIndex].def));
+                while(pokeIndex != -1) {                   
+        
+                    system("cls");
+                    pokeViewer();
+                    statViewer(--pokeIndex);
+                    
+                    pokeIndex = numInputCheck("Select another pokedex entry to view\n[X] to return to menu\n\n", pokeSize, 1);
 
-                pokeIndex = numInputCheck("Select another pokedex entry to view\n[X] to return to menu\n\n", pokeSize, 1);
-
-            }
+                }
  
                 break;
+
+            case 'r':
+
+                pokeIndex = numInputCheck("Select pokedex entry to remove\n[X] to return to menu\n\n", pokeSize, 0);
+
+                printf("To be removed:\n");
+                statViewer(--pokeIndex);
+
+                userInput = menuInputCheck("Are you sure?\nThis action is irreversable\n[Y]es\n[N]o\n", "ynxq", 1);
+
+                if (userInput != 'y')
+                    break;
+
+                for(int i = pokeIndex; i < MAXSIZE; i++){
+                    
+                    strcpy(list[i].name, list[i + 1].name);
+                    list[i].type1 = list[i + 1].type1;
+                    list[i].type2 = list[i + 1].type2;
+                    list[i].hp = list[i + 1].hp;
+                    list[i].atk = list[i + 1].atk;
+                    list[i].def = list[i + 1].def;
+
+                }
+
+                pokeSize--;
+
+                system("clr");
+                pokeViewer();
+                printf("Successfully removed!\nPress any key to continue\n");
+                getche();
 
             default:
                 break;
@@ -278,5 +308,15 @@ void pokeViewer(){
     }
 
     printf("\n");
+
+}
+
+void statViewer(int index){
+
+    printf("Name: %s\n", list[index].name);
+    printf("Type: %s %s\n", typeConverter(list[index].type1), list[index].type2 ? typeConverter(list[index].type2) : "");
+    printf("HP  : [%s]\n", bars(list[index].hp));
+    printf("ATK : [%s]\n", bars(list[index].atk));
+    printf("DEF : [%s]\n\n", bars(list[index].def));
 
 }
