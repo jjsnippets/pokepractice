@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 #define FILEPATH "C:/Users/sarco/OneDrive - DEPED REGION 7-2/Desktop/pokepractice/init_poke.csv"
+#define MAXSIZE 5
 
 typedef struct {
     char name[100];
@@ -17,7 +18,7 @@ typedef struct {
 } pokemon;
 
 // global variables
-pokemon list[50];
+pokemon list[MAXSIZE];
 int pokeSize = 0;
 
 void pokeViewer();
@@ -196,7 +197,7 @@ void main(){
         pokeSize++;
         countRow++;
 
-        if (pokeSize > 50 || countRow > 51){
+        if (pokeSize > MAXSIZE || countRow > MAXSIZE + 1){
             fprintf(stderr, "\n#%d - Maximum size reached\n", __LINE__);
             exit(EXIT_FAILURE);
         }
@@ -211,7 +212,28 @@ void main(){
 
     do { // while (userInput != 'q')
 
-        userInput = menuInputCheck("Select one of the following:\n[V]iew individual stats\n[A]dd new pokemon\n[R]emove pokemon\n[Q]uit and save\n\n", "varq");
+        char* menuText = calloc(110, sizeof(char));
+        char* selText = calloc(10, sizeof(char));
+        memset(menuText, '\0', 110);
+        memset(selText, '\0', 10);
+        strcat(menuText, "Select one of the following:\n");
+        strcat(selText, "q");
+        
+        if (pokeSize > 0){
+            strcat(menuText, "[V]iew individual stats\n[R]emove pokemon\n");
+            strcat(selText, "vr");
+        }
+
+        if (pokeSize < 50){
+            strcat(menuText, "[A]dd new pokemon\n");
+            strcat(selText, "a");
+        }
+
+        strcat(menuText, "[Q]uit and save\n\n");
+        strcat(selText, "q");
+
+
+        userInput = menuInputCheck(menuText, selText);
 
         switch (userInput) {
             case 'v':
