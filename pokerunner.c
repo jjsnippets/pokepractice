@@ -91,12 +91,13 @@ char menuInputCheck(char* text, char* valid){
 
         system("cls");
         pokeViewer();
-        printf("%s", text);
 
         if (strpbrk(ibuffer, valid) && input)
             return input;
         else if (input)
             printf("%c\nInvalid input!\n\n", input);
+
+        printf("%s", text);
 
         do {
                 input = tolower(getche());
@@ -108,16 +109,18 @@ char menuInputCheck(char* text, char* valid){
 
 }
 
-int numInputCheck(char* text, int max){
+int numInputCheck(char* text, int max, int hideList){
 
     int input = -1;
-    char* cintput;
+    char* cintput = calloc(5, sizeof(char));
 
     while (true) {
 
-        system("cls");
-        pokeViewer();
-        printf("%s", text);
+        if (!hideList){
+            system("cls");
+            pokeViewer();
+        } else
+            hideList--;
 
         if (input == -1){}
         else if (strcmp(cintput, "x") == 0 || strcmp(cintput, "X") == 0){
@@ -126,13 +129,26 @@ int numInputCheck(char* text, int max){
             printf("Enter a number!\n\n");
         } else if (input > max || input < 1){
             printf("Enter a valid number!\n\n");
-        } else 
+        } else{
+            free(cintput);
             return input;
+        }
+
+        printf("%s", text);
 
         scanf("%s", cintput);
         input = atoi(cintput);
 
     }
+}
+
+char* bars(int prop){
+
+    char* output = calloc(10, sizeof(char));
+    memset(output, '_', 10);
+    memset(output, 'o', prop < 10 ? 1 : prop/10);
+
+    return output;
 }
 
 void main(){
@@ -195,30 +211,29 @@ void main(){
 
     do { // while (userInput != 'q')
 
-        userInput = menuInputCheck("Select one of the following:\n[V]iew individual stats\n[A]dd new pokemon\n[R]emove pokemon\n[Q]uit and save\n", "varq");
+        userInput = menuInputCheck("Select one of the following:\n[V]iew individual stats\n[A]dd new pokemon\n[R]emove pokemon\n[Q]uit and save\n\n", "varq");
 
         switch (userInput) {
             case 'v':
 
-                pokeIndex = numInputCheck("Select pokedex entry to view\n[X] to return to menu\n", pokeSize);
-                if (pokeIndex == -1)
-                    break;
-                
+            pokeIndex = numInputCheck("Select pokedex entry to view\n[X] to return to menu\n\n", pokeSize, 0);
+
+            while(pokeIndex != -1) {                   
+    
+                system("cls");
                 pokeViewer();
+                printf("Name: %s\n", list[--pokeIndex].name);
+                printf("Type: %s %s\n", typeConverter(list[pokeIndex].type1), list[pokeIndex].type2 ? typeConverter(list[pokeIndex].type2) : "");
+                printf("HP  : [%s]\n", bars(list[pokeIndex].hp));
+                printf("ATK : [%s]\n", bars(list[pokeIndex].atk));
+                printf("DEF : [%s]\n\n", bars(list[pokeIndex].def));
 
-                printf("Name: %s\nSTATS: \n", list[--pokeIndex].name);
-                printf("%s%s\n", typeConverter(list[pokeIndex].type1), list[pokeIndex].type2 ? typeConverter(list[pokeIndex].type2) : "");
-                printf("HP  : [%d]\n", list[pokeIndex].hp);
-                printf("ATK : [%d]\n", list[pokeIndex].atk);
-                printf("DEF : [%d]\n", list[pokeIndex].def);
+                pokeIndex = numInputCheck("Select another pokedex entry to view\n[X] to return to menu\n\n", pokeSize, 1);
 
-                getche();
+            }
+ 
+                break;
 
-
-
-
-                
-            
             default:
                 break;
         }
