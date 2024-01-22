@@ -20,13 +20,7 @@ typedef struct pokemon{
 // global variables
 pokemon list[MAXSIZE];
 int pokeSize = 0;
-
-void pokeViewer();
-void statViewer(pokemon* list, int index);
-
-char* typeConverter(int num){
-
-    char* types[19] = {
+char* types[19] = {
         "N/A",
         "Normal",
         "Fighting",
@@ -48,6 +42,12 @@ char* typeConverter(int num){
         "Fairy"
     };
 
+void pokeViewer();
+void statViewer(pokemon* list, int index);
+void sheetDisplay(int pos);
+
+char* typeConverter(int num){
+
     if (num >= 0 && num <= 18)
         return types[num];
     else
@@ -62,13 +62,15 @@ int setType(int value, int pos, int strict){
     if (pos == 1 && value == 0){
         printf("The first type cannot be N/A\n");
         strict == 1 ? exit(EXIT_FAILURE) : 0;
+        return -2;
     }
 
     if (value >= 0 && value <= 18){
         return value;
     } else {
-        printf("Type entered should be between 0 to 18\n");
+        printf("Enter a valid number!\n");
         strict == 1 ? exit(EXIT_FAILURE) : 0;
+        return -3;
     }
 }
 
@@ -81,21 +83,20 @@ int set100(int value, char* pos, int strict){
     } else {
         printf("%s entered should be between 1 to 100", pos);
         strict == 1 ? exit(EXIT_FAILURE) : 0;
+        return -1;
     }
 }
 
-char menuInputCheck(char* text, char* valid, int hideList){
+char menuInputCheck(char* text, char* valid, int anyKey, pokemon* list, int index){
 
     char input = 0;
     char* ibuffer = calloc(2, sizeof(char));
 
     while (true) {
 
-        if (!hideList){
-            system("cls");
-            pokeViewer();
-        } else
-            hideList--;
+        system("cls");
+        pokeViewer();
+        (index != -1) ? (statViewer(list, index)) : 0;
 
         if (strpbrk(ibuffer, valid) && input)
             return input;
@@ -103,6 +104,11 @@ char menuInputCheck(char* text, char* valid, int hideList){
             printf("%c\nInvalid input!\n\n", input);
 
         printf("%s", text);
+
+        if (anyKey){
+            getche();
+            return 'x';
+        }
 
         do {
                 input = tolower(getche());
@@ -114,26 +120,26 @@ char menuInputCheck(char* text, char* valid, int hideList){
 
 }
 
-int numInputCheck(char* text, int max, int hideList){
+int numInputCheck(char* text, int max, int sheet, pokemon* list, int index){
 
-    int input = -1;
+    int input = -9949;
     char* cintput = calloc(5, sizeof(char));
 
     while (true) {
 
-        if (!hideList){
-            system("cls");
-            pokeViewer();
-        } else
-            hideList--;
+        system("cls");
+        pokeViewer();
+        (index != -1) ? (statViewer(list, index)) : 0;
+        sheet ? sheetDisplay(sheet) : 0;
 
-        if (input == -1){}
+        if (input == -9949){}
         else if (strcmp(cintput, "x") == 0 || strcmp(cintput, "X") == 0){
             return -1;
-        } else if (input == 0){
+        } else if (input == 0 && !(sheet == 2)){
             printf("Enter a number!\n\n");
-        } else if (input > max || input < 1){
+        } else if (input > max || input < 0){
             printf("Enter a valid number!\n\n");
+            if (sheet) return -2;
         } else{
             free(cintput);
             return input;
@@ -156,12 +162,55 @@ char* bars(int prop){
     return output;
 }
 
+int infoAdder(char* text, int obj, char* pos, pokemon* list, int index){
+
+    int value = 0;
+    char* blockText = calloc(200, sizeof(char));
+    
+    if (obj != 3){
+
+        do{
+
+        strcat(blockText, text);
+
+        value = setType(numInputCheck(blockText, 18, obj, list, index), obj, 0);
+
+        memset(blockText, '\0', 200);
+
+        value == -2 ? strcat(blockText, "The first type cannot be N/A\n\n") : 0;
+        value == -3 ? strcat(blockText, "Enter a valid number!\n\n") : 0;
+
+        } while (value < 0);
+
+        return value;
+
+    } else {
+
+        do{
+
+        strcat(blockText, text);
+
+        value = set100(numInputCheck(blockText, 100, 0, list, index), pos, 0);
+
+        memset(blockText, '\0', 200);
+
+        value == -1 ? strcat(blockText, "Finish filling up the values first!\n\n") : 0;
+        value == -2 ? strcat(blockText, pos) : 0;
+        value == -2 ? strcat(blockText, " entered should be between 1 to 100\n\n") : 0;
+
+        } while (value < 0);
+
+        return value;
+
+
+    }
+
+}
+
 void main(){
     // loading the file
     // https://en.cppreference.com/w/c/program/EXIT_status
-    printf("A file named 'init_poke.csv' must exist in the folder where the executable is run for pre-polulated data\n");
-    printf("Press any key to continue\n");
-    getche();
+    menuInputCheck("A file named 'init_poke.csv' must exist in the folder where the executable is run for pre-polulated data\nPress any key to continue\n\n", "", 1, list, -1);
 
     FILE *fp;
     char row[1000];
@@ -238,20 +287,16 @@ void main(){
         strcat(selText, "q");
 
 
-        userInput = menuInputCheck(menuText, selText, 0);
+        userInput = menuInputCheck(menuText, selText, 0, list, -1);
 
         switch (userInput) {
             case 'v':
 
-                pokeIndex = numInputCheck("Select pokedex entry to view\n[X] to return to menu\n\n", pokeSize, 0);
+                pokeIndex = numInputCheck("Select pokedex entry to view\n[X] to return to menu\n\n", pokeSize, 0, list, -1);
 
                 while(pokeIndex != -1) {                   
-        
-                    system("cls");
-                    pokeViewer();
-                    statViewer(list, --pokeIndex);
                     
-                    pokeIndex = numInputCheck("Select another pokedex entry to view\n[X] to return to menu\n\n", pokeSize, 1);
+                    pokeIndex = numInputCheck("Select another pokedex entry to view\n[X] to return to menu\n\n", pokeSize, 0, list, --pokeIndex);
 
                 }
  
@@ -259,15 +304,12 @@ void main(){
 
             case 'r':
 
-                pokeIndex = numInputCheck("Select pokedex entry to remove\n[X] to return to menu\n\n", pokeSize, 0);
+                pokeIndex = numInputCheck("Select pokedex entry to remove\n[X] to return to menu\n\n", pokeSize, 0, list, -1);
 
                 if (pokeIndex == -1)
                     break;
 
-                printf("To be removed:\n");
-                statViewer(list, --pokeIndex);
-
-                userInput = menuInputCheck("Are you sure?\nThis action is irreversable\n[Y]es\n[N]o\n", "ynxq", 1);
+                userInput = menuInputCheck("Remove the pokemon listed above?\nThis action is irreversable\n[Y]es\n[N]o\n\n", "ynx", 0, list, --pokeIndex);
 
                 if (userInput != 'y')
                     break;
@@ -284,12 +326,7 @@ void main(){
                 }
 
                 pokeSize--;
-
-                system("clr");
-                pokeViewer();
-                printf("Successfully removed!\nPress any key to continue\n");
-                getche();
-
+                menuInputCheck("Successfully removed!\nPress any key to continue\n\n", "", 1, list, -1);
                 break;
 
             case 'a':
@@ -302,7 +339,7 @@ void main(){
                 toAdd[0].def = 0;
 
                 do {
-                    system("clr");
+                    system("cls");
                     pokeViewer();
 
                     printf("Name of the pokemon to be added\n");
@@ -310,16 +347,31 @@ void main(){
                     rewind(stdin);
                     scanf("%[^\n,]s", &toAdd[0].name);
 
-                    system("clr");
-                    pokeViewer();
-                    statViewer(toAdd, 0);
-
-                    userInput = menuInputCheck("Is the name correct?\n[Y]es\n[N]o\n", "ynxq", 1);
+                    userInput = menuInputCheck("Is the name correct?\n[Y]es\n[N]o\n\n", "ynx", 0, toAdd, 0);
 
                 } while (userInput != 'y');
 
-                toAdd[0].type1 = infoAdder(1, 1);
+                toAdd[0].type1 = infoAdder("Enter first type from the list above\n\n", 1, "1", toAdd, 0);
+                toAdd[0].type2 = infoAdder("Enter second type from the list above\n\n", 2, "2", toAdd, 0);
+                toAdd[0].hp = infoAdder("Enter HP of pokemon [1 - 100]\n\n", 3, "HP", toAdd, 0);
+                toAdd[0].atk = infoAdder("Enter Attack of pokemon [1 - 100]\n\n", 3, "ATK", toAdd, 0);
+                toAdd[0].def = infoAdder("Enter Defense of pokemon [1 - 100]\n\n", 3, "DEF", toAdd, 0);
 
+                userInput = menuInputCheck("Add this pokemon to the pokedex?\n[Y]es\n[N]o\n\n", "ynx", 0, toAdd, 0); 
+
+                if (userInput != 'y')
+                    break;
+
+                strcpy(list[pokeSize].name, toAdd[0].name);
+                list[pokeSize].type1 = toAdd[0].type1;
+                list[pokeSize].type2 = toAdd[0].type2;
+                list[pokeSize].hp = toAdd[0].hp;
+                list[pokeSize].atk = toAdd[0].atk;
+                list[pokeSize].def = toAdd[0].def;
+
+                pokeSize++;
+
+                menuInputCheck("Successfully added!\nPress any key to continue\n\n", "", 1, list, pokeSize - 1);
 
             default:
                 break;
@@ -334,7 +386,8 @@ void main(){
 
 void pokeViewer(){
 
-    system("cls");
+    if (!pokeSize)
+        return;
 
     printf("No. |    Name    | Type 1 | Type 2 | HP | ATK | DEF |\n");
 
@@ -350,8 +403,17 @@ void statViewer(pokemon* list, int index){
 
     printf("Name: %s\n", list[index].name);
     printf("Type: %s %s\n", typeConverter(list[index].type1), list[index].type2 ? typeConverter(list[index].type2) : "");
-    printf("HP  : [%s]\n", bars(list[index].hp));
-    printf("ATK : [%s]\n", bars(list[index].atk));
-    printf("DEF : [%s]\n\n", bars(list[index].def));
+    printf("HP  : [%s] %3d\n", bars(list[index].hp), list[index].hp);
+    printf("ATK : [%s] %3d\n", bars(list[index].atk), list[index].atk);
+    printf("DEF : [%s] %3d\n\n", bars(list[index].def), list[index].def);
+
+}
+
+void sheetDisplay(int pos){
+
+    for (int i = 2 - pos; i <= 18; i++){
+        printf("%02d: %s\n", i, types[i]);
+    }
+    printf("\n");
 
 }
