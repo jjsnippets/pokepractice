@@ -57,8 +57,6 @@ char* typeConverter(int num){
 
 int setType(int value, int pos, int strict){
 
-    //printf("%d\n", value);
-
     if (pos == 1 && value == 0){
         printf("The first type cannot be N/A\n");
         strict == 1 ? exit(EXIT_FAILURE) : 0;
@@ -76,7 +74,6 @@ int setType(int value, int pos, int strict){
 
 int set100(int value, char* pos, int strict){
 
-    //printf("%d\n", value);
 
     if (value >= 1 && value <= 100){
         return value;
@@ -378,10 +375,18 @@ void main(){
         }
 
     } while (userInput != 'q');
-    
+
+    fp = fopen("output_poke.csv", "w");
+
+    fprintf(fp, ",name,type1,type2,hp,atk,def\n");
+
+    for (int i = 0; i < MAXSIZE - 1; i++){
+        fprintf(fp, "%d,%s,%d,%d,%d,%d,%d\n", i, list[i].name, list[i].type1, list[i].type2, list[i].hp, list[i].atk, list[i].def);
+    }
+
+    menuInputCheck("Successfully saved to 'output_poke.csv'\nPress any key to continue\n\n", "", 1, list, -1);
 
 }
-
 
 
 void pokeViewer(){
